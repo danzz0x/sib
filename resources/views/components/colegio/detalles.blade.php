@@ -44,11 +44,11 @@
             </div>
 
             <!-- Contenido -->
-            <div class="p-6">
+            <div class="">
                 <!-- Metadatos -->
                 <div class="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
                     @if ($publicacion->ubicacion)
-                        <div class="flex items-center">
+                        <div class="flex items-center pl-4">
                             <x-ri-map-pin-line class="w-4 h-4 mr-1" />
                             <span>{{ $publicacion->ubicacion }}</span>
                         </div>
@@ -65,14 +65,14 @@
 
                 <!-- Detalles completos (HTML) -->
                 @if ($publicacion->detalles)
-                    <div class="prose prose-lg max-w-none prose-zinc text-xs md:text-lg mb-6 border-t pt-4">
+                    <div class="prose prose-lg max-w-none prose-zinc text-xs md:text-lg mb-6 border-t p-6">
                         {!! $publicacion->detalles_html !!}
                     </div>
                 @endif
 
                 <!-- URL externa -->
                 @if ($publicacion->url)
-                    <div class="border-t pt-4">
+                    <div class="border-t p-4">
                         <a href="{{ $publicacion->url }}" target="_blank" rel="noopener noreferrer"
                             class="inline-flex items-center px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-900 transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

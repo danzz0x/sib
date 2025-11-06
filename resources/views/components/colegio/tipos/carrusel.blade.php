@@ -19,10 +19,6 @@
             :style="`transform: translateX(-${activeSlide * 100}%);`">
             @foreach ($seccion->publicaciones as $index => $publicacion)
                 <div class="w-full flex-shrink-0 relative">
-                    <div
-                        class="absolute left-2 top-2 z-50 bg-black/50 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 rounded-full">
-                        {{ $publicacion->prioridad }}
-                    </div>
                     <img src="{{ Storage::url($publicacion->imagen) }}" alt="Imagen de publicación"
                         class="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[780px] object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
                         @click="showFullscreen = true">
@@ -52,7 +48,7 @@
                     @endif
                     @auth
                         <div :class="activeSlide === {{ $index }} ? 'block' : 'hidden'" class="z-50">
-                            <x-colegio.menukebab :id="$publicacion->id" />
+                            <x-colegio.menukebab :id="$publicacion->id" :prioridad="$publicacion->prioridad" :max="$seccion->publicaciones->max('prioridad')" />
                         </div>
                     @endauth
 

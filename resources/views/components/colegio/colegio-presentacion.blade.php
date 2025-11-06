@@ -1,5 +1,4 @@
-<div
-    class="relative w-full min-h-[500px] bg-gradient-to-br from-green-950 via-green-900 to-green-700 text-white overflow-hidden">
+<div class="relative w-full min-h-[500px] bg-gradient-to-br from-green-950 via-green-900 to-green-700 text-white">
     <div class="absolute inset-0 opacity-10 bg-cover"></div>
     <div
         class="relative z-10 container mx-auto h-full flex mt-12 flex-col md:flex-row items-center justify-center gap-8 px-4 sm:px-6 lg:px-8">
@@ -48,8 +47,8 @@
                             @endif
                         </a>
                         @auth
-                            <div class="absolute -top-5 -right-5">
-                                <div x-data="{ open: false }" class="relative">
+                            <div class="absolute -top-5 -right-5  z-[9999]">
+                                <div x-data="{ open: false }">
                                     <button @click="open = !open"
                                         class="p-1 rounded-full hover:bg-white/20 bg-white flex items-center justify-center text-white/80 hover:text-white"
                                         :class="{ 'bg-white/20': open }" aria-label="Opciones del contacto"

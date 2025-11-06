@@ -1,5 +1,4 @@
-@props(['id', 'directorio' => false, 'details' => true])
-
+@props(['id', 'directorio' => false, 'details' => true, 'prioridad' => null, 'max' => null])
 <div x-data="{ open: false }" {{ $attributes->merge(['class' => 'absolute top-4 right-4 z-20']) }}>
     <div class="relative">
 
@@ -37,6 +36,16 @@
                     Detalles
                 </button>
             @endif
+            <div @click.stop class="flex items-center gap-3 justify-center py-1 border-t border-gray-100 mt-1">
+                <x-ri-arrow-up-fill title="{{ $prioridad === $max ? 'Ya está arriba del todo' : 'Mover hacia arriba' }}"
+                    class="w-5 h-5 cursor-pointer transition {{ $prioridad === $max ? 'opacity-30 pointer-events-none' : 'hover:text-green-700' }}"
+                    wire:click="$dispatch('move-publicacion-up', { id: {{ $id }} })" @click="open = false" />
+
+                <x-ri-arrow-down-fill title="{{ $prioridad === 1 ? 'Ya está abajo del todo' : 'Mover hacia abajo' }}"
+                    class="w-5 h-5 cursor-pointer transition {{ $prioridad === 1 ? 'opacity-30 pointer-events-none' : 'hover:text-green-700' }}"
+                    wire:click="$dispatch('move-publicacion-down', { id: {{ $id }} })"
+                    @click="open = false" />
+            </div>
         </div>
     </div>
 </div>

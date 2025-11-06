@@ -57,8 +57,9 @@
                     currentindex = Math.round(scrollLeft / itemWidth);
                 ">
                 @foreach ($seccion->publicaciones as $publicacion)
-                    <div wire:key="pub-mobile-{{ $publicacion->id }}" x-data="{ openDetail: false }" @click="openDetail = true"
-                        class="w-[85vw] max-w-sm flex-shrink-0 snap-center cursor-pointer transition-all">
+                    <div wire:key="pub-mobile-{{ $publicacion->id }}" x-data="{ openDetail: false }"
+                        class="w-[85vw] max-w-sm flex-shrink-0 snap-center cursor-pointer transition-all"
+                        @if ($publicacion->imagen) @click="openDetail = true" @endif>
                         <div
                             class="group relative bg-white rounded-xl shadow-lg  transition flex flex-col overflow-hidden h-full">
                             @auth
@@ -121,22 +122,18 @@
         <div
             class="{{ $seccion->publicaciones->count() > 3 ? 'hidden md:flex' : 'flex' }} flex-wrap justify-center gap-6 ">
             @foreach ($seccion->publicaciones as $publicacion)
-                <div wire:key="pub-desktop-{{ $publicacion->id }}" x-data="{ openDetail: false }" @click="openDetail = true"
-                    class="w-full md:w-[calc(50%-12px)] cursor-pointer lg:w-[calc(33.333%-16px)] transition-all">
+                <div wire:key="pub-desktop-{{ $publicacion->id }}" x-data="{ openDetail: false }"
+                    class="w-full md:w-[calc(50%-12px)] cursor-pointer lg:w-[calc(33.333%-16px)] transition-all"
+                    @if ($publicacion->imagen) @click="openDetail = true" @endif>
                     <div
-                        class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition flex flex-col overflow-hidden h-full">
+                        class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition flex flex-col overflow-visible h-full">
+
                         @auth
-                            <div
-                                class="absolute left-2 top-2 z-10 bg-black/50 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 rounded-full">
-                                {{ $publicacion->prioridad }}
-                            </div>
-                        @endauth
-                        @auth
-                            <x-colegio.menukebab :id="$publicacion->id" />
+                            <x-colegio.menukebab :id="$publicacion->id" :prioridad="$publicacion->prioridad" :max="$seccion->publicaciones->max('prioridad')" />
                         @endauth
 
                         @if ($publicacion->imagen)
-                            <div class="flex items-center justify-center bg-gray-200">
+                            <div class="flex items-center justify-center bg-gray-200 rounded-t-xl overflow-hidden">
                                 <img src="{{ Storage::url($publicacion->imagen) }}" alt="{{ $publicacion->titulo }}"
                                     class="object-cover h-56 w-full">
                             </div>

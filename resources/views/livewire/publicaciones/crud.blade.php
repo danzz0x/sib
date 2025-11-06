@@ -38,20 +38,6 @@
                             @enderror
                         </div>
 
-                        {{-- Prioridad --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Prioridad <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" wire:model.defer="prioridad"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#213502] focus:border-[#213502] text-sm"
-                                min="0" max="999">
-                            <p class="mt-1 text-xs text-gray-500">Mayor número = mayor prioridad</p>
-                            @error('prioridad')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         {{-- Estado --}}
                         <div class="flex items-center space-x-4 pt-6">
                             <label class="flex items-center">
@@ -309,24 +295,13 @@
                                 </label>
                                 <input type="text" wire:model.defer="titulo"
                                     class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#213502] focus:border-[#213502] text-sm"
-                                    placeholder="Título de la publicación" maxlength="200">
+                                    placeholder="Nombre completo" maxlength="200">
                                 @error('titulo')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Prioridad <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" wire:model.defer="prioridad"
-                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#213502] focus:border-[#213502] text-sm"
-                                    min="0" max="999">
-                                <p class="mt-1 text-xs text-gray-500">Mayor número = mayor prioridad</p>
-                                @error('prioridad')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+
 
                             {{-- Estado --}}
                             <div class="flex items-center space-x-4 pt-6">

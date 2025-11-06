@@ -5,13 +5,13 @@
     @if ($secciones->isNotEmpty())
         <div class="space-y-8">
             @foreach ($secciones->sortBy('orden') as $seccion)
-                <div wire:key="seccion-{{ $seccion->id }}" class="relative overflow-hidden">
+                <div wire:key="seccion-{{ $seccion->id }}" class="relative">
                     <div class="px-6 py-2 relative ">
                         <div class="flex justify-center">
                             <div class="flex items-center space-x-3">
                                 @if ($seccion->titulo)
                                     <h2
-                                        class="text-xl md:text-4xl text-center font-semibold uppercase tracking-[0.15em] text-gray-800 relative">
+                                        class="text-xl md:text-4xl text-center font-semibold uppercase tracking-[0.15em] text-gray-800 relative font-sans">
                                         <span class="relative z-10 px-4">{{ $seccion->titulo }}</span>
                                         <span
                                             class="absolute left-1/2 -bottom-2 w-16 h-[3px] bg-green-700 rounded-full -translate-x-1/2"></span>

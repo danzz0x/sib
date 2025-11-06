@@ -10,13 +10,9 @@
             @foreach ($seccion->publicaciones as $publicacion)
                 <div x-data = "{ openDetail : false }" @click = "openDetail = true"
                     class="relative group shadow-lg mb-6 flex flex-row items-center cursor-pointer transition-all overflow-hidden w-full snap-start">
-                    <div
-                        class="absolute left-2 top-2 z-10 bg-black/50 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 rounded-full">
-                        {{ $publicacion->prioridad }}
-                    </div>
-
                     @auth
-                        <x-colegio.menukebab :id="$publicacion->id" class="absolute top-2 right-2 z-10" />
+                        <x-colegio.menukebab :id="$publicacion->id" :prioridad="$publicacion->prioridad" :max="$seccion->publicaciones->max('prioridad')"
+                            class="absolute top-2 right-2 z-10" />
                     @endauth
 
                     @if ($publicacion->imagen)
@@ -39,7 +35,7 @@
                                     {{ $publicacion->fecha_inicio->translatedFormat('d \d\e M \d\e Y') }}</p>
                             @endif
                         </div>
-                        <div class="hidden md:visible mt-2 text-sm sm:text-base">
+                        <div class="hidden md:flex mt-2 text-sm sm:text-base">
                             <p>{{ Str::limit($publicacion->descripcion, 150) }}</p>
                         </div>
                     </div>

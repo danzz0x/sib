@@ -7,6 +7,7 @@ use App\Models\Colegio;
 use App\Models\Seccion;
 use App\Traits\WithAlerts;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -124,23 +125,28 @@ class Crud extends Component
     public function moveUp($id)
     {
         try {
-            $seccion = Seccion::findOrFail($id);
+            DB::transaction(function () use ($id) {
+                $seccion = Seccion::lockForUpdate()->findOrFail($id);
 
-            if ($seccion->orden > 1) {
                 $seccionAnterior = Seccion::where('colegio_id', $this->colegio->id)
-                    ->where('orden', $seccion->orden - 1)
+                    ->where('orden', '<', $seccion->orden)
+                    ->orderBy('orden', 'desc')
+                    ->lockForUpdate()
                     ->first();
 
-                if ($seccionAnterior) {
-                    $ordenActual = $seccion->orden;
-                    $seccion->update(['orden' => $seccionAnterior->orden]);
-                    $seccionAnterior->update(['orden' => $ordenActual]);
-
-                    $this->clearColegioCache();
-                    $this->dispatch('seccion-updated');
-                    $this->toastSuccess('Sección movida hacia arriba');
+                if (! $seccionAnterior) {
+                    return;
                 }
-            }
+
+                $ordenActual = $seccion->orden;
+
+                $seccion->update(['orden' => $seccionAnterior->orden]);
+                $seccionAnterior->update(['orden' => $ordenActual]);
+            });
+
+            $this->clearColegioCache();
+            $this->dispatch('seccion-updated');
+            $this->toastSuccess('Sección movida hacia arriba');
         } catch (\Exception $e) {
             $this->toastError('Error al mover la sección');
         }
@@ -150,24 +156,29 @@ class Crud extends Component
     public function moveDown($id)
     {
         try {
-            $seccion = Seccion::findOrFail($id);
-            $maxOrden = Seccion::where('colegio_id', $this->colegio->id)->max('orden');
+            DB::transaction(function () use ($id) {
+                $seccion = Seccion::lockForUpdate()->findOrFail($id);
 
-            if ($seccion->orden < $maxOrden) {
                 $seccionSiguiente = Seccion::where('colegio_id', $this->colegio->id)
-                    ->where('orden', $seccion->orden + 1)
+                    ->where('orden', '>', $seccion->orden)
+                    ->orderBy('orden', 'asc') // el más próximo hacia abajo
+                    ->lockForUpdate()
                     ->first();
 
-                if ($seccionSiguiente) {
-                    $ordenActual = $seccion->orden;
-                    $seccion->update(['orden' => $seccionSiguiente->orden]);
-                    $seccionSiguiente->update(['orden' => $ordenActual]);
-
-                    $this->clearColegioCache();
-                    $this->dispatch('seccion-updated');
-                    $this->toastSuccess('Sección movida hacia abajo');
+                if (! $seccionSiguiente) {
+                    return;
                 }
-            }
+
+                $ordenActual = $seccion->orden;
+
+                $seccion->update(['orden' => $seccionSiguiente->orden]);
+                $seccionSiguiente->update(['orden' => $ordenActual]);
+            });
+
+            $this->clearColegioCache();
+            $this->dispatch('seccion-updated');
+            $this->toastSuccess('Sección movida hacia abajo');
+
         } catch (\Exception $e) {
             $this->toastError('Error al mover la sección');
         }

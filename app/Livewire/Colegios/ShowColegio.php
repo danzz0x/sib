@@ -86,16 +86,4 @@ class ShowColegio extends Component
         $otherUserType = $userType === 'auth' ? 'guest' : 'auth';
         Cache::forget("colegio_optimized.{$this->colegio->slug}.{$otherUserType}");
     }
-
-    // Método para obtener secciones por tipo
-    public function getSeccionesByTipo($tipo)
-    {
-        return $this->secciones->where('tipo_mostrar.value', $tipo);
-    }
-
-    // Método para verificar si hay contenido
-    public function hasContent()
-    {
-        return $this->estadisticas['tiene_contenido'];
-    }
 }

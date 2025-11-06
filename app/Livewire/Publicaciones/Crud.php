@@ -143,7 +143,6 @@ class Crud extends Component
             'titulo' => $this->titulo ?: null,
             'descripcion' => $this->descripcion ?: null,
             'url' => $this->url ?: null,
-            'prioridad' => $this->prioridad,
             'archivado' => $this->archivado,
             'fecha_inicio' => $this->fecha_inicio ? Carbon::parse($this->fecha_inicio) : null,
             'fecha_fin' => $this->fecha_fin ? Carbon::parse($this->fecha_fin) : null,
@@ -177,7 +176,11 @@ class Crud extends Component
                 Publicacion::where('id', $this->publicacionId)->update($data);
                 $this->toastUpdated('Publicación');
             } else {
+
+                $maxOrden = Publicacion::where('seccion_id', $this->seccion_id)->max('prioridad') ?? 0;
+
                 $data['seccion_id'] = $this->seccion_id;
+                $data['prioridad'] = $maxOrden + 1;
                 Publicacion::create($data);
                 $this->toastCreated('Publicación');
             }
