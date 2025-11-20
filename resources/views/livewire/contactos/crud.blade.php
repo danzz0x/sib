@@ -2,7 +2,7 @@
     <div x-show="openModal" x-on:click="openModal = false" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 z-50 overflow-y-auto"
+        x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 z-100 overflow-y-auto"
         aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
             <div class="relative bg-white text-black rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all"
@@ -80,9 +80,10 @@
                             @case('facebook')
                             @case('instagram')
 
+                            @case('tiktok')
                             @case('twitter')
-                            @case('youtube')
 
+                            @case('youtube')
                             @case('otro')
                                 <input type="url" wire:model.defer="valor"
                                     class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#213502] focus:border-[#213502] text-sm"

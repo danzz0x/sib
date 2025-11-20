@@ -2,23 +2,24 @@
 
 namespace App\Models;
 
+use App\Enums\TipoMostrarSeccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Enums\TipoMostrarSeccion;
 
 class Seccion extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'secciones';
-    
+
     protected $fillable = [
         'colegio_id',
         'titulo',
         'tipo_mostrar',
-        'orden'
+        'anio',
+        'orden',
     ];
-    
+
     protected $casts = [
         'tipo_mostrar' => TipoMostrarSeccion::class,
     ];
@@ -36,8 +37,8 @@ class Seccion extends Model
     public function publicacionesActivas()
     {
         return $this->hasMany(Publicacion::class)
-                    ->where('archivado', false)
-                    ->orderBy('prioridad', 'desc');
+            ->where('archivado', false)
+            ->orderBy('prioridad', 'desc');
     }
 
     public function scopeOrdered($query)
@@ -52,11 +53,11 @@ class Seccion extends Model
 
     public function tieneTitulo(): bool
     {
-        return !empty($this->titulo);
+        return ! empty($this->titulo);
     }
 
     public function getTituloMostrarAttribute(): string
     {
-        return $this->titulo ?: 'Sección ' . ucfirst($this->tipo_mostrar->value);
-    } 
+        return $this->titulo ?: 'Sección '.ucfirst($this->tipo_mostrar->value);
+    }
 }

@@ -155,7 +155,8 @@
                                 </label>
                                 <input type="text" wire:model.live.debounce.500ms="nombre"
                                     class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                                    placeholder="Nombre del colegio" maxlength="255" required>
+                                    placeholder="Ej. Colegio de Ingenieros Civiles (CIC-POTOSÍ) " maxlength="255"
+                                    required>
                                 @error('nombre')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror

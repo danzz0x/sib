@@ -1,5 +1,4 @@
-@props(['colegio'])
-@props(['secciones'])
+@props(['colegio', 'secciones', 'aniosDisponibles' => [], 'anioSeleccionado' => null])
 
 <div x-data="{ openModal: false, openModalPub: false, openModalDetalle: false, openModalDirec: false }" x-cloak>
     @if ($secciones->isNotEmpty())
@@ -12,7 +11,7 @@
                                 @if ($seccion->titulo)
                                     <h2
                                         class="text-xl md:text-4xl text-center font-semibold uppercase tracking-[0.15em] text-gray-800 relative font-sans">
-                                        <span class="relative z-10 px-4">{{ $seccion->titulo }}</span>
+                                        <span class="relative px-4">{{ $seccion->titulo }}</span>
                                         <span
                                             class="absolute left-1/2 -bottom-2 w-16 h-[3px] bg-green-700 rounded-full -translate-x-1/2"></span>
                                     </h2>
@@ -119,7 +118,7 @@
                                 @break
 
                                 @case('directorio')
-                                    <x-colegio.tipos.directorio :seccion="$seccion" />
+                                    <x-colegio.tipos.directorio :seccion="$seccion" :aniosDisponibles="$aniosDisponibles" :anioSeleccionado="$anioSeleccionado" />
                                 @break
                             @endswitch
                         @else

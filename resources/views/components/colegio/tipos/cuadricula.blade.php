@@ -102,12 +102,15 @@
                                     @endif
                                 </div>
                                 <h3
-                                    class="font-semibold text-lg transition-all text-gray-800 mb-2{{ !is_null($publicacion->detalles) || !is_null($publicacion->url) ? ' group-hover:text-green-800 ' : '' }}">
+                                    class="font-semibold text-lg transition-all text-gray-800 mb-2
+    {{ !is_null($publicacion->detalles) || !is_null($publicacion->url) ? ' group-hover:text-green-800 ' : '' }}
+
+    {{ $publicacion->imagen ? '' : ' text-center ' }}">
                                     {{ $publicacion->titulo }}
                                 </h3>
 
-                                <p class="text-sm text-gray-600 flex-1">
-                                    {{ Str::limit($publicacion->descripcion, 100) }}
+                                <p class="text-sm text-gray-600  flex-1">
+                                    {{ is_null($publicacion->imagen ? Str::limit($publicacion->descripcion, 100) : $publicacion->descripcion) }}
                                 </p>
 
                                 <x-colegio.detalles :publicacion="$publicacion" />
@@ -162,11 +165,14 @@
                                 @endif
                             </div>
                             <h3
-                                class="font-semibold text-lg transition-all text-gray-800 mb-2{{ !is_null($publicacion->detalles) || !is_null($publicacion->url) ? ' group-hover:text-green-800 ' : '' }}">
+                                class="font-semibold text-lg transition-all text-gray-800 mb-2
+    {{ !is_null($publicacion->detalles) || !is_null($publicacion->url) ? ' group-hover:text-green-800 ' : '' }}
+
+    {{ $publicacion->imagen ? '' : ' text-center ' }}">
                                 {{ $publicacion->titulo }}
                             </h3>
-                            <p class="text-sm text-gray-600 flex-1">
-                                {{ Str::limit($publicacion->descripcion, 100) }}
+                            <p class="text-sm {{ $publicacion->imagen ? '' : ' text-center ' }} text-gray-600 flex-1">
+                                {{ $publicacion->imagen ? Str::limit($publicacion->descripcion, 100) : $publicacion->descripcion }}
                             </p>
 
                             <x-colegio.detalles :publicacion="$publicacion" />

@@ -25,13 +25,19 @@ class Colegios extends Component
     public $colegioId;
 
     protected $rules = [
-        'nombre' => 'required|string|max:255',
+        'nombre' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^.+\s\([A-Z0-9\-]+\)$/i',
+        ],
         'descripcion' => 'nullable|string|max:500',
         'nuevoLogo' => 'nullable|image|max:2048',
     ];
 
     protected $messages = [
         'nombre.required' => 'El nombre es obligatorio.',
+        'nombre.regex' => 'El nombre debe tener el formato: Colegio ... (ABREVIACION)',
         'nuevoLogo.image' => 'Debe ser una imagen válida.',
         'nuevoLogo.max' => 'La imagen no puede ser mayor a 2MB.',
     ];

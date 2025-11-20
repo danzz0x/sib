@@ -1,4 +1,5 @@
 <div class="w-full py-6">
+
     <div class="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
         @foreach ($seccion->publicaciones as $publicacion)
             <div x-data="{ showFullscreen: false }" class="relative flex items-center w-full sm:w-80 md:w-[28rem] lg:w-[32rem] px-4">
@@ -39,6 +40,19 @@
                     </div>
                 </div>
             </div>
+        @endforeach
+    </div>
+    <div class="flex justify-center space-x-4 mb-6">
+        @foreach ($aniosDisponibles as $anio)
+            @php $isActive = $anio == $anioSeleccionado; @endphp
+            <button wire:click="cambiarAnio({{ $anio }})"
+                class="relative py-2 px-4 text-sm font-medium transition-all duration-200
+                {{ $isActive ? 'text-[#213502] font-semibold' : 'text-gray-600 hover:text-[#213502]' }}">
+                {{ $anio }}
+                @if ($isActive)
+                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-[#213502] rounded-full"></span>
+                @endif
+            </button>
         @endforeach
     </div>
 </div>

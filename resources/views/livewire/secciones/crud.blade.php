@@ -138,11 +138,21 @@
                                         </div>
                                         <p class="text-xs text-gray-600">
                                             {{ App\Enums\TipoMostrarSeccion::Directorio->descripcion() }}</p>
+                                        <div>
+                                            <label for="anio">Año del directorio</label>
+                                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="anio"
+                                                class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#213502] focus:border-[#213502] text-sm "
+                                                placeholder="Ej: 2024" wire:model.defer="anio">
+                                            @if ($errors->has('anio'))
+                                                <p class="mt-1 text-sm text-red-600">{{ $errors->first('anio') }}</p>
+                                            @endif
+                                        </div>
                                     @break
                                 @endswitch
                             </div>
                         @endif
                     </div>
+
                     <div class="flex space-x-3 pt-4">
                         <button type="button" @click="openModal = false"
                             class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">

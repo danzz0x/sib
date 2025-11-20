@@ -32,10 +32,10 @@
                         <ul>
                             @foreach (\App\Models\Colegio::activo()->get() as $colegio)
                                 <li class="block">
-                                    <a href="{{ route('colegios.show', $colegio->slug) }}" wire:navigate.hover
-                                        class="block px-4 py-2 text-gray-700 hover:bg-green-100 transition">
+                                    <x-responsive-nav-link href="{{ route('colegios.show', $colegio->slug) }}"
+                                        wire:navigate.hover :active="request()->route('slug') === $colegio->slug">
                                         {{ $colegio->nombre_limpio }}
-                                    </a>
+                                    </x-responsive-nav-link>
                                 </li>
                             @endforeach
                         </ul>

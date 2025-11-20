@@ -6,8 +6,8 @@ enum TipoMostrarSeccion: string
 {
     case Carrusel = 'carrusel';
     case Cuadricula = 'cuadricula';
-    case Lista = 'lista'; 
-    case Directorio = 'directorio'; 
+    case Lista = 'lista';
+    case Directorio = 'directorio';
 
     /**
      * Obtener el icono correspondiente para cada tipo
@@ -16,7 +16,7 @@ enum TipoMostrarSeccion: string
     {
         return match ($this) {
             self::Carrusel => 'ri-slideshow-3-line',
-            self::Cuadricula => 'ri-layout-grid-line', 
+            self::Cuadricula => 'ri-layout-grid-line',
             self::Lista => 'ri-list-unordered',
             self::Directorio => 'ri-team-line',
         };
@@ -48,3 +48,4 @@ enum TipoMostrarSeccion: string
         };
     }
 }
+

@@ -22,19 +22,31 @@ class Colegio extends Model
     protected $appends = ['logo_url', 'descripcion_corta', 'inicial'];
 
     // Generar slug automáticamente
+
     protected static function booted()
     {
         static::creating(function ($colegio) {
             if (empty($colegio->slug)) {
-                $colegio->slug = Str::slug($colegio->nombre);
+                $colegio->slug = static::extraerSlug($colegio->nombre);
             }
         });
 
         static::updating(function ($colegio) {
             if ($colegio->isDirty('nombre')) {
-                $colegio->slug = Str::slug($colegio->nombre);
+                $colegio->slug = static::extraerSlug($colegio->nombre);
             }
         });
+    }
+
+    protected static function extraerSlug($nombre)
+    {
+        // Extrae el texto dentro de los paréntesis
+        if (preg_match('/\(([^)]+)\)/', $nombre, $matches)) {
+            return Str::slug($matches[1]);
+        }
+
+        // Si no tiene paréntesis, usa todo el nombre como fallback
+        return Str::slug($nombre);
     }
 
     // Accessor optimizado para URL del logo

@@ -9,6 +9,9 @@
     <script>
         window.isAuthenticated = @json(auth()->check());
     </script>
+    @auth
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    @endauth
     @livewireStyles
 </head>
 

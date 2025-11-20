@@ -38,14 +38,6 @@
                             @enderror
                         </div>
 
-                        {{-- Estado --}}
-                        <div class="flex items-center space-x-4 pt-6">
-                            <label class="flex items-center">
-                                <input type="checkbox" wire:model.defer="archivado"
-                                    class="rounded border-gray-300 text-[#213502] focus:ring-[#213502]">
-                                <span class="ml-2 text-sm text-gray-700">Archivar publicación</span>
-                            </label>
-                        </div>
                     </div>
 
                     {{-- Descripción --}}
@@ -126,7 +118,7 @@
                     </div>
 
                     {{-- Fechas --}}
-                    <div class="flex justify-center gap-4">
+                    <div class="flex gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                             </label>
@@ -138,11 +130,19 @@
                             @enderror
                         </div>
 
+                        {{-- Estado --}}
+                        <div class="flex items-center space-x-4 pt-6">
+                            <label class="flex items-center">
+                                <input type="checkbox" wire:model.defer="archivado"
+                                    class="rounded border-gray-300 text-[#213502] focus:ring-[#213502]">
+                                <span class="ml-2 text-sm text-gray-700">Archivar publicación</span>
+                            </label>
+                        </div>
 
                     </div>
 
                     {{-- Vista previa del estado --}}
-                    <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-[#213502]">
+                    {{-- <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-[#213502]">
                         <h4 class="font-medium text-gray-900 mb-2">Estado de la publicación:</h4>
                         <div class="flex items-center space-x-4">
                             @if ($archivado)
@@ -162,7 +162,7 @@
                             </span>
                         </div>
                     </div>
-
+ --}}
                     <div class="flex space-x-3 pt-6">
                         <button type="button" @click="openModalPub = false"
                             class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">
@@ -199,30 +199,44 @@
             class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
             aria-modal="true">
             <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative w-full max-w-2xl">
+                <div class="relative w-full max-w-6xl">
                     <div class="bg-white rounded-lg shadow-xl overflow-hidden" @click.stop>
                         {{-- Header --}}
-                        <div class="bg-gray-50 px-4 py-3 border-b">
-                            hola
+                        <div class="bg-gray-50 px-6 py-4 border-b">
+                            <h2 class="text-lg font-semibold text-gray-800">Crea los detalles</h2>
                         </div>
 
                         {{-- Body --}}
                         <div class="p-6">
                             <form wire:submit.prevent="storeDetalles">
-                                <div class="mb-4">
-                                    <label for="detalles" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Detalles en Markdown (opcional)
-                                    </label>
-                                    <textarea id="detalles" wire:model.defer="detalles" rows="12"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 resize-vertical"
-                                        placeholder="Escribe aquí los detalles del evento en formato Markdown. Ejemplo: # Título del Evento&#10;&#10;- Lista de items&#10;- Otro item&#10;&#10;**Texto en negrita**&#10;&#10;[Enlace externo](https://ejemplo.com)"></textarea>
-                                    @error('detalles')
-                                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                    @enderror
+                                <div x-data="{ markdown: @entangle('detalles').live }">
+                                    {{-- Grid de dos columnas --}}
+                                    <div class="grid grid-cols-2 gap-6 mb-4">
+                                        {{-- Columna izquierda: Editor --}}
+                                        <div class="flex flex-col">
+                                            <label for="detalles"
+                                                class="block text-sm font-medium text-gray-700 mb-2">
+                                                Editor Markdown
+                                            </label>
+                                            <textarea id="detalles" x-model="markdown"
+                                                class="w-full h-96 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 resize-none font-mono text-sm"
+                                                placeholder="# Título del Evento&#10;&#10;- Lista de items&#10;- Otro item&#10;&#10;**Texto en negrita**&#10;&#10;[Enlace externo](https://ejemplo.com)"></textarea>
+                                            @error('detalles')
+                                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Columna derecha: Preview --}}
+                                        <div class="flex flex-col">
+                                            <h3 class="text-sm font-medium text-gray-700 mb-2">Vista previa</h3>
+                                            <div class="h-96 overflow-auto border rounded-lg p-4 bg-gray-50">
+                                                <div x-html="marked.parse(markdown || 'Escribe algo en Markdown para previsualizar...')"
+                                                    class="prose prose-sm prose-indigo max-w-none">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                {{-- Preview --}}
-
 
                                 {{-- Mensaje de éxito --}}
                                 @if (session()->has('message'))
@@ -231,13 +245,14 @@
                                     </div>
                                 @endif
 
-                                <div class="bg-gray-50 px-4 py-3 flex justify-end space-x-2 border-t">
+                                {{-- Footer con botones --}}
+                                <div class="mt-6 flex justify-end space-x-3 pt-4 border-t">
                                     <button type="button" @click="openModalDetalle = false"
-                                        class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                                         Cancelar
                                     </button>
                                     <button type="submit"
-                                        class="flex-1 px-4 py-2 bg-[#213502] text-white rounded-lg hover:bg-[#2d4a03] font-medium transition-colors disabled:opacity-50"
+                                        class="px-6 py-2 bg-[#213502] text-white rounded-lg hover:bg-[#2d4a03] font-medium transition-colors disabled:opacity-50"
                                         wire:loading.attr="disabled">
                                         <span wire:loading.remove>
                                             Guardar detalles
@@ -254,6 +269,7 @@
                                             Guardando...
                                         </span>
                                     </button>
+                                </div>
                             </form>
                         </div>
                     </div>

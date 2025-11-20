@@ -47,7 +47,7 @@
                             @endif
                         </a>
                         @auth
-                            <div class="absolute -top-5 -right-5  z-[9999]">
+                            <div class="absolute -top-5 -right-5">
                                 <div x-data="{ open: false }">
                                     <button @click="open = !open"
                                         class="p-1 rounded-full hover:bg-white/20 bg-white flex items-center justify-center text-white/80 hover:text-white"
@@ -56,7 +56,7 @@
                                         <x-ri-more-2-fill class="w-4 h-4 text-black" />
                                     </button>
                                     <div x-show="open" @click.away="open = false"
-                                        class="absolute top-6 -right-2 mt-1 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1"
+                                        class="absolute top-6 -right-2 mt-1 w-32 bg-white border border-gray-200 rounded-lg shadow-lg py-1"
                                         x-transition>
                                         <button @click="openModal = true" @click = "open = false"
                                             wire:click="$dispatch('edit-contacto', { id:

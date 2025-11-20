@@ -9,6 +9,7 @@ use App\Traits\WithAlerts;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -28,22 +29,34 @@ class Crud extends Component
 
     public $orden = 0;
 
+    public $anio = null;
+
     public $action;
 
     protected function rules()
     {
-        $rules = [
+        return [
             'titulo' => 'nullable|string|max:150',
-            'tipo_mostrar' => 'required|in:'.implode(',', array_column(TipoMostrarSeccion::cases(), 'value')),
+            'tipo_mostrar' => [
+                'required',
+                Rule::in(array_column(TipoMostrarSeccion::cases(), 'value')),
+            ],
+            'anio' => [
+                Rule::requiredIf(fn () => $this->tipo_mostrar === 'directorio'),
+                'nullable',
+                'integer',
+                'min:1900',
+                'max:2100',
+            ],
         ];
-
-        return $rules;
     }
 
     protected $messages = [
         'titulo.max' => 'El título no puede exceder 150 caracteres',
         'tipo_mostrar.required' => 'Selecciona un tipo de visualización',
         'tipo_mostrar.in' => 'El tipo seleccionado no es válido',
+        'anio.required' => 'El año es obligatorio para los directorios',
+        'anio.integer' => 'El año debe ser un número entero',
     ];
 
     public function render()
@@ -59,12 +72,12 @@ class Crud extends Component
         $this->titulo = $seccion->titulo;
         $this->tipo_mostrar = $seccion->tipo_mostrar->value;
         $this->orden = $seccion->orden;
+        $this->anio = $seccion->anio;
         $this->isEditing = true;
     }
 
     public function store()
     {
-
         $this->validate();
 
         if ($this->isEditing) {
@@ -72,6 +85,7 @@ class Crud extends Component
                 ->update([
                     'titulo' => $this->titulo ?: null,
                     'tipo_mostrar' => $this->tipo_mostrar,
+                    'anio' => $this->anio,
                 ]);
             $this->toastUpdated('Sección');
         } else {
@@ -81,6 +95,7 @@ class Crud extends Component
                 'colegio_id' => $this->colegio->id,
                 'titulo' => $this->titulo ?: null,
                 'tipo_mostrar' => $this->tipo_mostrar,
+                'anio' => $this->anio,
                 'orden' => $maxOrden + 1,
             ]);
             $this->toastCreated('Sección');
@@ -90,7 +105,6 @@ class Crud extends Component
         $this->resetForm();
         $this->dispatch('seccion-updated');
         $this->dispatch('close-modal');
-
     }
 
     #[On('delete-seccion')]
@@ -187,7 +201,7 @@ class Crud extends Component
     #[On('reset-form')]
     public function resetForm()
     {
-        $this->reset(['titulo', 'tipo_mostrar', 'orden', 'seccionId', 'isEditing']);
+        $this->reset(['titulo', 'tipo_mostrar', 'orden', 'seccionId', 'isEditing', 'anio']);
         $this->resetErrorBag();
     }
 

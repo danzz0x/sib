@@ -1,5 +1,5 @@
 @props(['id', 'directorio' => false, 'details' => true, 'prioridad' => null, 'max' => null])
-<div x-data="{ open: false }" {{ $attributes->merge(['class' => 'absolute top-4 right-4 z-20']) }}>
+<div x-data="{ open: false }" {{ $attributes->merge(['class' => 'absolute top-4 right-4 ']) }}>
     <div class="relative">
 
         <button @click.stop="open = !open"
@@ -16,23 +16,26 @@
 
             <button @click.stop="{{ $directorio ? 'openModalDirec = true' : 'openModalPub = true' }}"
                 wire:click="$dispatch('edit-publicacion', { id: {{ $id }}})"
-                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
+                class="flex w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
                 @click="open = false">
+                <x-ri-pencil-line class="w-5 h-5 pr-2" />
                 Editar
             </button>
 
             <button
                 onclick="window.confirmDelete({{ $id }}, (id) => Livewire.dispatch('delete-publicacion', { id: id }))"
-                class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50"
+                class="flex w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50"
                 @click.stop="open = false">
+                <x-ri-delete-bin-2-line class="w-5 h-5 pr-2" />
                 Eliminar
             </button>
 
             @if ($details)
                 <button @click.stop="openModalDetalle = !openModalDetalle"
                     wire:click="$dispatch('store-detalles', { id: {{ $id }}})"
-                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50"
+                    class="flex w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-100 focus:outline-none focus:bg-red-50"
                     @click="open = false">
+                    <x-ri-file-info-line class="w-5 h-5 pr-2" />
                     Detalles
                 </button>
             @endif
