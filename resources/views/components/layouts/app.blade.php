@@ -12,6 +12,8 @@
     @auth
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     @endauth
+
+    <x-turnstile.scripts />
     @livewireStyles
 </head>
 

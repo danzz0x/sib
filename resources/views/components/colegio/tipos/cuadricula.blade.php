@@ -1,4 +1,4 @@
-@props(['seccion'])
+@props(['seccion', 'canManagePost'])
 
 <div class="relative max-w-6xl mx-auto w-full  bg-white py-8" x-data="{
     currentindex: 0,
@@ -48,7 +48,6 @@
 
     <div class="px-4 md:px-0 overflow-visible">
         @if ($seccion->publicaciones->count() > 3)
-            {{-- Carrusel mobile con scroll snap --}}
             <div class="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 p-4"
                 x-ref="carousel"
                 @scroll.debounce.150ms="
@@ -58,19 +57,13 @@
                 ">
                 @foreach ($seccion->publicaciones as $publicacion)
                     <div wire:key="pub-mobile-{{ $publicacion->id }}" x-data="{ openDetail: false }"
-                        class="w-[85vw] max-w-sm flex-shrink-0 snap-center cursor-pointer transition-all"
+                        class="{{ $publicacion->css_estado }} w-[85vw] max-w-sm flex-shrink-0 snap-center cursor-pointer transition-all"
                         @if ($publicacion->imagen) @click="openDetail = true" @endif>
                         <div
                             class="group relative bg-white rounded-xl shadow-lg  transition flex flex-col overflow-hidden h-full">
-                            @auth
-                                <div
-                                    class="absolute left-2 top-2 z-10 bg-black/50 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 rounded-full">
-                                    {{ $publicacion->prioridad }}
-                                </div>
-                            @endauth
-                            @auth
-                                <x-colegio.menukebab :id="$publicacion->id" />
-                            @endauth
+                            @if ($canManagePost)
+                                <x-colegio.menukebab class="admin-only" :id="$publicacion->id" />
+                            @endif
 
                             @if ($publicacion->imagen)
                                 <div class="flex items-center justify-center bg-gray-200">
@@ -97,9 +90,9 @@
                                         </div>
                                     @endif
 
-                                    @if ($publicacion->archivado)
-                                        <span class="rounded-2xl text-sm bg-red-200 px-2 py-1">archivado</span>
-                                    @endif
+                                    <div class="mb-2">
+                                        <x-colegio.badge-estado :archivado="$publicacion->archivado" />
+                                    </div>
                                 </div>
                                 <h3
                                     class="font-semibold text-lg transition-all text-gray-800 mb-2
@@ -125,15 +118,19 @@
         <div
             class="{{ $seccion->publicaciones->count() > 3 ? 'hidden md:flex' : 'flex' }} flex-wrap justify-center gap-6 ">
             @foreach ($seccion->publicaciones as $publicacion)
+                @php
+                    $claseArchivado = $publicacion->archivado ? 'admin-only' : '';
+                @endphp
                 <div wire:key="pub-desktop-{{ $publicacion->id }}" x-data="{ openDetail: false }"
-                    class="w-full md:w-[calc(50%-12px)] cursor-pointer lg:w-[calc(33.333%-16px)] transition-all"
+                    class="{{ $claseArchivado }} w-full md:w-[calc(50%-12px)] cursor-pointer lg:w-[calc(33.333%-16px)] transition-all"
                     @if ($publicacion->imagen) @click="openDetail = true" @endif>
                     <div
                         class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition flex flex-col overflow-visible h-full">
 
-                        @auth
-                            <x-colegio.menukebab :id="$publicacion->id" :prioridad="$publicacion->prioridad" :max="$seccion->publicaciones->max('prioridad')" />
-                        @endauth
+                        @if ($canManagePost)
+                            <x-colegio.menukebab class="admin-only" :id="$publicacion->id" :prioridad="$publicacion->prioridad"
+                                :max="$seccion->publicaciones->max('prioridad')" />
+                        @endif
 
                         @if ($publicacion->imagen)
                             <div class="flex items-center justify-center bg-gray-200 rounded-t-xl overflow-hidden">
@@ -160,9 +157,9 @@
                                     </div>
                                 @endif
 
-                                @if ($publicacion->archivado)
-                                    <span class="rounded-2xl text-sm bg-red-200 px-2 py-1">archivado</span>
-                                @endif
+                                <div class="mb-2">
+                                    <x-colegio.badge-estado :archivado="$publicacion->archivado" />
+                                </div>
                             </div>
                             <h3
                                 class="font-semibold text-lg transition-all text-gray-800 mb-2

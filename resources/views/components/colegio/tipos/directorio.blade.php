@@ -3,9 +3,10 @@
     <div class="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
         @foreach ($seccion->publicaciones as $publicacion)
             <div x-data="{ showFullscreen: false }" class="relative flex items-center w-full sm:w-80 md:w-[28rem] lg:w-[32rem] px-4">
-                @auth <x-colegio.menukebab :id="$publicacion->id" :directorio="true" :details="false" :prioridad="$publicacion->prioridad"
-                        :max="$seccion->publicaciones->max('prioridad')" />
-                @endauth
+                @if ($canManagePost)
+                    <x-colegio.menukebab class="admin-only" :id="$publicacion->id" :directorio="true" :details="false"
+                        :prioridad="$publicacion->prioridad" :max="$seccion->publicaciones->max('prioridad')" />
+                @endif
                 @if ($publicacion->imagen)
                     <img @click="showFullscreen = true" src="{{ Storage::url($publicacion->imagen) }}"
                         alt="{{ $publicacion->titulo }}"

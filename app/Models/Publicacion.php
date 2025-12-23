@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use League\CommonMark\CommonMarkConverter;
@@ -69,5 +70,18 @@ class Publicacion extends Model
 
         // 2. Usar la instancia cacheadada para la conversión
         return static::$converterInstance->convert($this->detalles);
+    }
+
+    protected function cssEstado(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->archivado) {
+                    return 'admin-only opacity-75 border-2 border-red-100';
+                }
+
+                return '';
+            }
+        );
     }
 }

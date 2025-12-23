@@ -1,6 +1,25 @@
-@props(['colegio', 'secciones', 'aniosDisponibles' => [], 'anioSeleccionado' => null])
+@props(['colegio', 'secciones', 'aniosDisponibles' => [], 'anioSeleccionado' => null, 'canManagePost' => false])
 
 <div x-data="{ openModal: false, openModalPub: false, openModalDetalle: false, openModalDirec: false }" x-cloak>
+    <div class="fixed top-14 left-1/2 transform -translate-x-1/2 z-10 mt-4">
+        @if ($canManagePost)
+            <div
+                class="flex space-x-2 p-2 bg-white/70 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 transition-all duration-300 ease-in-out">
+
+                <button @click="isEdit = false"
+                    :class="{ 'bg-green-600 text-white shadow-md': !isEdit, 'bg-gray-100 text-gray-700': isEdit }"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Vista Previa
+                </button>
+
+                <button @click="isEdit = true"
+                    :class="{ 'bg-green-600 text-white shadow-md': isEdit, 'bg-gray-100 text-gray-700': !isEdit }"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Modo Edición
+                </button>
+            </div>
+        @endif
+    </div>
     @if ($secciones->isNotEmpty())
         <div class="space-y-8">
             @foreach ($secciones->sortBy('orden') as $seccion)
@@ -16,17 +35,18 @@
                                             class="absolute left-1/2 -bottom-2 w-16 h-[3px] bg-green-700 rounded-full -translate-x-1/2"></span>
                                     </h2>
                                 @endif
-                                @auth
-                                    <span class="px-2 py-1 text-white  rounded-full text-xs bg-green-900">
-                                        {{ ucfirst($seccion->tipo_mostrar->value) }}
-                                    </span>
-                                @endauth
+
                             </div>
-                            @auth
-                                <div class="flex items-center space-x-2">
+                            @if ($canManagePost)
+                                <span
+                                    class="admin-only mt-2 p-2 text-white text-center items-center rounded-full h-8 text-xs bg-green-900">
+                                    {{ ucfirst($seccion->tipo_mostrar->value) }}
+                                </span>
+                                <div class="admin-only flex items-center space-x-2">
                                     <div class="flex flex-col space-y-1">
                                         @if ($seccion->orden > 1)
-                                            <button wire:click="$dispatch('move-seccion-up', { id: {{ $seccion->id }} })"
+                                            <button
+                                                wire:click="$dispatch('move-seccion-up', { id: {{ $seccion->id }} })"
                                                 class="p-1 rounded hover:bg-white/20 transition-colors group"
                                                 title="Mover hacia arriba">
                                                 <x-ri-arrow-up-line
@@ -39,7 +59,8 @@
                                         @endif
 
                                         @if ($seccion->orden < $secciones->max('orden'))
-                                            <button wire:click="$dispatch('move-seccion-down', { id: {{ $seccion->id }} })"
+                                            <button
+                                                wire:click="$dispatch('move-seccion-down', { id: {{ $seccion->id }} })"
                                                 class="p-1 rounded hover:bg-white/20 transition-colors group"
                                                 title="Mover hacia abajo">
                                                 <x-ri-arrow-down-line
@@ -52,7 +73,6 @@
                                         @endif
                                     </div>
 
-                                    {{-- Menú de opciones --}}
                                     <div class="relative" x-data="{ open: false }">
 
                                         <button @click="open = !open"
@@ -87,18 +107,8 @@
                                         </div>
                                     </div>
                                 </div>
-
-                            @endauth
+                            @endif
                         </div>
-
-                        @auth
-                            {{-- Indicador de orden --}}
-                            <div class="absolute top-2 left-2">
-                                <div class="bg-white/20 rounded-full px-2 py-1 text-xs font-medium">
-                                    #{{ $seccion->orden }}
-                                </div>
-                            </div>
-                        @endauth
                     </div>
 
                     {{-- Contenido de la sección --}}
@@ -106,19 +116,20 @@
                         @if ($seccion->publicaciones->isNotEmpty())
                             @switch($seccion->tipo_mostrar->value)
                                 @case('carrusel')
-                                    <x-colegio.tipos.carrusel :seccion="$seccion" />
+                                    <x-colegio.tipos.carrusel :seccion="$seccion" :can-manage-post="$canManagePost" />
                                 @break
 
                                 @case('cuadricula')
-                                    <x-colegio.tipos.cuadricula :seccion="$seccion" />
+                                    <x-colegio.tipos.cuadricula :seccion="$seccion" :can-manage-post="$canManagePost" />
                                 @break
 
                                 @case('lista')
-                                    <x-colegio.tipos.lista :seccion="$seccion" />
+                                    <x-colegio.tipos.lista :seccion="$seccion" :can-manage-post="$canManagePost" />
                                 @break
 
                                 @case('directorio')
-                                    <x-colegio.tipos.directorio :seccion="$seccion" :aniosDisponibles="$aniosDisponibles" :anioSeleccionado="$anioSeleccionado" />
+                                    <x-colegio.tipos.directorio :seccion="$seccion" :can-manage-post="$canManagePost" :aniosDisponibles="$aniosDisponibles"
+                                        :anioSeleccionado="$anioSeleccionado" />
                                 @break
                             @endswitch
                         @else
@@ -126,15 +137,15 @@
                                 <x-ri-file-list-3-line class="w-12 h-12 mx-auto mb-4 text-gray-300" />
                                 <p class="text-lg font-medium">No hay publicaciones en esta sección</p>
                                 <p class="text-sm">Las publicaciones aparecerán aquí cuando las agregues</p>
-                                @auth
+                                @if ($canManagePost)
                                     <button
                                         @click="{{ $seccion->tipo_mostrar->value === 'directorio' ? 'openModalDirec = true' : 'openModalPub = true' }}"
                                         wire:click="dispatch('create-pub', {id: {{ $seccion->id }}})"
-                                        class="inline-flex items-center mt-4 px-4 py-2 bg-[#213502] text-white rounded-lg hover:bg-[#2d4a03] transition-colors">
+                                        class="admin-only inline-flex items-center mt-4 px-4 py-2 bg-[#213502] text-white rounded-lg hover:bg-[#2d4a03] transition-colors">
                                         <x-ri-add-line class="w-4 h-4 mr-2" />
                                         Agregar Primera Publicación
                                     </button>
-                                @endauth
+                                @endif
                             </div>
                         @endif
                     </div>
@@ -145,22 +156,22 @@
         <div class="text-center py-16 bg-gray-50 rounded-lg">
             <x-ri-layout-grid-line class="w-16 h-16 mx-auto mb-6 text-gray-300" />
             <h3 class="text-xl font-medium text-gray-900 mb-2">No hay secciones creadas</h3>
-            <p class="text-gray-600 mb-6">Comienza organizando el contenido de tu colegio creando la primera sección</p>
+            <p class="text-gray-600 mb-6">Comienza organizando el contenido de tu colegio creando la primera sección
+            </p>
 
-            @auth
+            @if ($canManagePost)
                 <button @click="openModal = !openModal"
-                    class="inline-flex items-center px-6 py-3 bg-[#213502] text-white rounded-lg hover:bg-[#2d4a03] font-medium transition-colors">
+                    class="admin-only inline-flex items-center px-6 py-3 bg-[#213502] text-white rounded-lg hover:bg-[#2d4a03] font-medium transition-colors">
                     <x-ri-add-line class="w-5 h-5 mr-2" />
                     Crear Primera Sección
                 </button>
-            @endauth
+            @endif
         </div>
     @endif
 
-    @auth
-        {{-- Botón flotante para agregar nueva sección (cuando ya hay secciones) --}}
+    @if ($canManagePost)
         @if ($secciones->isNotEmpty())
-            <div class="fixed bottom-6 right-6 z-30">
+            <div class="admin-only fixed bottom-6 right-6 z-30">
                 <button @click="openModal = !openModal"
                     class="p-4 bg-[#213502] text-white rounded-full shadow-lg hover:bg-[#2d4a03] transition-colors hover:shadow-xl"
                     title="Agregar Nueva Sección">
@@ -169,8 +180,9 @@
             </div>
         @endif
 
-        {{-- Modales de CRUD --}}
         @livewire('secciones.crud', ['colegio' => $colegio], key('secciones-modal-' . $colegio->id))
         @livewire('publicaciones.crud', ['colegio' => $colegio], key('publicaciones-modal-' . $colegio->id))
-    @endauth
+    @endif
+
+    @livewire('publico.portal-pago', ['idColegio' => $colegio->id])
 </div>

@@ -120,4 +120,9 @@ class Colegio extends Model
 
         return trim($nombreLimpio);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withPivot('tipo_usuario_colegio');
+    }
 }

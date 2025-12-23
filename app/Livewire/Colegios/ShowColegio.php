@@ -5,6 +5,7 @@ namespace App\Livewire\Colegios;
 use App\Models\Colegio;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -156,6 +157,18 @@ class ShowColegio extends Component
         $this->resetPage();
 
         $this->publicacionesPorSeccion = [];
+    }
+
+    #[Computed]
+    public function canManageContent()
+    {
+        if (! auth()->check()) {
+            return false;
+        }
+
+        auth()->user()->load('colegios');
+
+        return Gate::allows('manage-post', $this->colegio);
     }
 
     public function render()
