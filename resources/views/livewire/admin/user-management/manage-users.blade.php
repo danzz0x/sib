@@ -2,7 +2,6 @@
     if (!value) { $wire.call('resetFields'); }
 })" class="p-6">
 
-    {{-- ENCABEZADO --}}
     <header class="flex justify-between items-center mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
@@ -40,14 +39,11 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse ($users as $user)
-                        {{-- Añadimos opacidad si está inactivo para feedback visual rápido --}}
                         <tr class="hover:bg-gray-50 transition-colors duration-150 {{ !$user->activo ? 'bg-gray-50 opacity-75 grayscale-[50%]' : '' }}"
                             wire:key="user-{{ $user->id }}">
 
-                            {{-- Columna Nombre/Email + Estado --}}
                             <td class="px-5 py-4">
                                 <div class="flex items-center">
-                                    {{-- Avatar o Icono --}}
                                     <div
                                         class="flex-shrink-0 h-10 w-10 rounded-full {{ $user->activo ? 'bg-green-100 text-green-600' : 'bg-gray-200 text-gray-500' }} flex items-center justify-center">
                                         <span class="font-bold text-sm">{{ substr($user->name, 0, 1) }}</span>
@@ -59,7 +55,6 @@
                                                 {{ $user->name }}
                                             </p>
 
-                                            {{-- BADGE DE ESTADO --}}
                                             @if (!$user->activo)
                                                 <span
                                                     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
@@ -119,11 +114,9 @@
                                 @endif
                             </td>
 
-                            {{-- Columna Acciones --}}
                             <td class="px-5 py-4 text-right text-sm font-medium">
                                 <div class="flex justify-end gap-3 items-center">
 
-                                    {{-- Botón Editar --}}
                                     <button wire:click="edit({{ $user->id }})"
                                         class="text-indigo-600 hover:text-indigo-900 transition-colors p-1 hover:bg-indigo-50 rounded"
                                         title="Editar Datos">
@@ -131,21 +124,9 @@
                                     </button>
 
                                     @if (auth()->id() !== $user->id)
-                                        {{-- Botón ACTIVAR / DESACTIVAR --}}
-                                        <button {{-- Usamos wire:confirm nativo de Livewire 3/Laravel 12 --}} wire:click="toggleStatus({{ $user->id }})"
-                                            wire:confirm="¿Estás seguro de que deseas {{ $user->activo ? 'desactivar' : 'activar' }} a este usuario?"
-                                            class="transition-colors p-1 rounded hover:bg-opacity-50
-                                            {{ $user->activo ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50' }}"
-                                            title="{{ $user->activo ? 'Desactivar acceso' : 'Activar acceso' }}">
-
-                                            @if ($user->activo)
-                                                {{-- Icono Bloquear (Si está activo) --}}
-                                                <x-ri-user-forbid-line class="w-5 h-5" />
-                                            @else
-                                                {{-- Icono Activar (Si está inactivo) --}}
-                                                <x-ri-checkbox-circle-line class="w-5 h-5" />
-                                            @endif
-                                        </button>
+                                        <x-colegio.confirm-button action="toggleStatus" :id="$user->id"
+                                            :active="!$user->activo" confirm-message="¿cambiar estado del usuario?"
+                                            icon-active="ri-user-forbid-line" icon-inactive="ri-user-follow-line" />
                                     @endif
                                 </div>
                             </td>
@@ -165,7 +146,6 @@
         </div>
     </article>
 
-    {{-- MODAL (El código del modal se mantiene IGUAL que el que me pasaste, no cambia nada ahí) --}}
     <div x-show="openModal" @keydown.escape.window="openModal = false" x-cloak
         class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -203,7 +183,6 @@
                         <form wire:submit.prevent="store" class="space-y-4">
 
 
-                            {{-- GRID: Nombre y Email --}}
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 

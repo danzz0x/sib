@@ -18,35 +18,32 @@ class Colegio extends Model
         'activo',
     ];
 
-    // Cache de atributos calculados
     protected $appends = ['logo_url', 'descripcion_corta', 'inicial'];
-
-    // Generar slug automáticamente
 
     protected static function booted()
     {
         static::creating(function ($colegio) {
             if (empty($colegio->slug)) {
-                $colegio->slug = static::extraerSlug($colegio->nombre);
+                $colegio->slug = static::extraerslug($colegio->nombre);
             }
         });
 
         static::updating(function ($colegio) {
-            if ($colegio->isDirty('nombre')) {
-                $colegio->slug = static::extraerSlug($colegio->nombre);
+            if ($colegio->isdirty('nombre')) {
+                $colegio->slug = static::extraerslug($colegio->nombre);
             }
         });
     }
 
-    protected static function extraerSlug($nombre)
+    protected static function extraerslug($nombre)
     {
-        // Extrae el texto dentro de los paréntesis
+        // extrae el texto dentro de los paréntesis
         if (preg_match('/\(([^)]+)\)/', $nombre, $matches)) {
-            return Str::slug($matches[1]);
+            return str::slug($matches[1]);
         }
 
-        // Si no tiene paréntesis, usa todo el nombre como fallback
-        return Str::slug($nombre);
+        // si no tiene paréntesis, usa todo el nombre como fallback
+        return str::slug($nombre);
     }
 
     // Accessor optimizado para URL del logo

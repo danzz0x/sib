@@ -171,7 +171,7 @@
 
     @if ($canManagePost)
         @if ($secciones->isNotEmpty())
-            <div class="admin-only fixed bottom-6 right-6 z-30">
+            <div class="admin-only fixed bottom-10 right-56 z-30">
                 <button @click="openModal = !openModal"
                     class="p-4 bg-[#213502] text-white rounded-full shadow-lg hover:bg-[#2d4a03] transition-colors hover:shadow-xl"
                     title="Agregar Nueva Sección">

@@ -49,10 +49,27 @@ class ManageUsers extends Component
     }
 
     protected $messages = [
-        'userColegios.*.colegio_id.required' => 'Seleccione un colegio.',
-        'userColegios.*.colegio_id.distinct' => 'No puedes seleccionar el mismo colegio dos veces.',
-        'userColegios.*.role.required' => 'Seleccione un rol para el colegio.',
+        'name.required' => 'El nombre completo es obligatorio.',
+        'name.string' => 'El nombre debe ser un texto válido.',
+        'name.max' => 'El nombre es demasiado largo (máximo 255 caracteres).',
+
+        'email.required' => 'El correo electrónico es obligatorio.',
+        'email.email' => 'El formato del correo electrónico no es válido.',
+        'email.max' => 'El correo es demasiado largo.',
+        'email.unique' => 'Este correo electrónico ya está registrado en el sistema.',
+
+        'password.required' => 'La contraseña es obligatoria para nuevos usuarios.',
         'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+
+        'role.required' => 'Debes seleccionar un rol para el usuario.',
+        'role.in' => 'El rol seleccionado no es válido.',
+
+        'userColegios.*.colegio_id.required' => 'Es necesario seleccionar un colegio en la lista.',
+        'userColegios.*.colegio_id.exists' => 'El colegio seleccionado no es válido.',
+        'userColegios.*.colegio_id.distinct' => 'No puedes asignar el mismo colegio dos veces.',
+
+        'userColegios.*.role.required' => 'Debes definir qué cargo ocupará en este colegio.',
+        'userColegios.*.role.string' => 'El cargo debe ser texto.',
     ];
 
     public function mount()

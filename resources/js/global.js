@@ -98,12 +98,15 @@ function initGlobalAlerts() {
                 window.showError = (title, text='') => this.error(title, text);
                 window.showToast = (message, type='success') => this.toast(message, type);
                 window.confirmDelete = (id, callback) => this.confirmDelete(id, callback);
+                window.confirmStatus = (message, id, callback) => this.confirmStatus(message, id, callback);
             }
 
             success(title, text='') { this.Swal.fire({ icon:'success', title, text, confirmButtonColor:'#059669', timer:3000, timerProgressBar:true, showConfirmButton:false }); }
             error(title, text='') { this.Swal.fire({ icon:'error', title, text, confirmButtonColor:'#dc2626' }); }
             toast(message, type='success') { this.Swal.fire({ toast:true, position:'top-end', icon:type, title:message, showConfirmButton:false, timer:3000, timerProgressBar:true, didOpen:(toast)=>{ toast.addEventListener('mouseenter', Swal.stopTimer); toast.addEventListener('mouseleave', Swal.resumeTimer); } }); }
             confirmDelete(id, callback) { this.Swal.fire({ title:'¿Estás seguro?', text:'¡No podrás revertir esta acción!', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc2626', cancelButtonColor:'#6b7280', confirmButtonText:'Sí, eliminar', cancelButtonText:'Cancelar', reverseButtons:true }).then(result=>{ if(result.isConfirmed && typeof callback==='function'){ callback(id); } }); }
+
+            confirmStatus(message, id, callback) { this.Swal.fire({ title:message, icon:'info', showCancelButton:true, confirmButtonColor:'#dc2626', cancelButtonColor:'#6b7280', confirmButtonText:'Sí', cancelButtonText:'Cancelar', reverseButtons:true }).then(result=>{ if(result.isConfirmed && typeof callback==='function'){ callback(id); } }); }
 
             handleSuccess(event){ this.success(event.detail.title||'Éxito', event.detail.text||''); }
             handleError(event){ this.error(event.detail.title||'Error', event.detail.text||''); }

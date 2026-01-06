@@ -1,6 +1,5 @@
 <div x-data="{ openModal: @entangle('openModal') }" x-init="$watch('openModal', value => { if (!value) { $wire.call('resetFields'); } })" class="p-6 font-sans">
 
-    {{-- ENCABEZADO --}}
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Gestión de Socios</h1>
@@ -8,7 +7,6 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-            {{-- Botón Exportar PDF --}}
             <button wire:click="exportarPdf" wire:loading.attr="disabled"
                 class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg shadow-sm transition-all flex items-center gap-2 text-sm font-medium disabled:opacity-50">
                 <x-ri-file-pdf-2-line class="w-4 h-4 text-red-600" />
@@ -17,7 +15,6 @@
                     class="ml-1 animate-spin rounded-full h-3 w-3 border-b-2 border-slate-600"></span>
             </button>
 
-            {{-- Botón Nuevo Socio --}}
             <button @click="openModal = true" wire:click="create"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-sm transition-all hover:shadow-md flex items-center gap-2 text-sm font-medium">
                 <x-ri-user-add-line class="w-4 h-4" />
@@ -26,11 +23,9 @@
         </div>
     </header>
 
-    {{-- BARRA DE FILTROS Y BÚSQUEDA --}}
     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-            {{-- Buscador --}}
             <div class="md:col-span-1">
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Buscar</label>
                 <div class="relative">
@@ -40,20 +35,18 @@
                 </div>
             </div>
 
-            {{-- Filtro Colegio --}}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Colegio</label>
                 <select wire:model.live="filtro_colegio"
                     class="w-full rounded-lg border-slate-300 text-sm focus:ring-slate-800 focus:border-slate-800">
                     <option value="">Todos los Colegios</option>
                     @foreach ($colegios as $col)
-                        <option value="{{ $col->id }}">{{ $col->sigla ?? substr($col->nombre, 0, 20) . '...' }}
+                        <option value="{{ $col->id }}">{{ $col->sigla ?? substr($col->nombre, 11, 25) . '...' }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            {{-- Filtro Tipo Socio --}}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tipo Socio</label>
                 <select wire:model.live="filtro_tipo"
@@ -65,7 +58,6 @@
                 </select>
             </div>
 
-            {{-- Botón Limpiar --}}
             <div class="flex items-end">
                 <button wire:click="limpiarFiltros"
                     class="w-full py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-sm font-medium transition flex justify-center items-center gap-1">
@@ -150,7 +142,6 @@
                                     {{ \Carbon\Carbon::parse($socio->fecha_registro)->format('d/m/Y') }}</p>
                             </td>
 
-                            {{-- Columna 4: Contacto --}}
                             <td class="px-6 py-4 text-sm">
                                 <div class="flex flex-col gap-1.5">
                                     @if ($socio->telefono)
@@ -183,16 +174,9 @@
                                     </button>
 
                                     {{-- Toggle Estado --}}
-                                    <button wire:click="toggleStatus({{ $socio->id }})"
-                                        wire:confirm="¿Estás seguro de cambiar el estado de {{ $socio->nombre }}?"
-                                        class="p-1.5 rounded transition {{ $socio->estado === 'Activo' ? 'text-red-500 hover:bg-red-50' : 'text-emerald-600 hover:bg-emerald-50' }}"
-                                        title="{{ $socio->estado === 'Activo' ? 'Deshabilitar' : 'Habilitar' }}">
-                                        @if ($socio->estado === 'Activo')
-                                            <x-ri-user-forbid-line class="w-5 h-5" />
-                                        @else
-                                            <x-ri-checkbox-circle-line class="w-5 h-5" />
-                                        @endif
-                                    </button>
+                                    <x-colegio.confirm-button action="toggleStatus" :id="$socio->id" :active="$socio->activo"
+                                        confirm-message="¿cambiar estado del usuario?" icon-active="ri-user-forbid-line"
+                                        icon-inactive="ri-user-follow-line" />
                                 </div>
                             </td>
                         </tr>

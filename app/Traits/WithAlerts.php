@@ -1,4 +1,5 @@
 <?php
+
 // app/Traits/WithAlerts.php
 
 namespace App\Traits;
@@ -8,20 +9,21 @@ trait WithAlerts
     /**
      * Dispatch success alert
      */
-   public function alertSuccess($title, $text = '', $options = [])
-{
-    $this->dispatch('swal:success', 
-        title: $title,
-        text: $text,
-        options: $options
-    );
-}
+    public function alertSuccess($title, $text = '', $options = [])
+    {
+        $this->dispatch('swal:success',
+            title: $title,
+            text: $text,
+            options: $options
+        );
+    }
+
     /**
      * Dispatch error alert
      */
     public function alertError($title, $text = '', $options = [])
     {
-        $this->dispatch('swal:error', 
+        $this->dispatch('swal:error',
             title: $title,
             text: $text,
             options: $options
@@ -45,7 +47,7 @@ trait WithAlerts
      */
     public function alertInfo($title, $text = '', $options = [])
     {
-        $this->dispatch('swal:info', 
+        $this->dispatch('swal:info',
             title: $title,
             text: $text,
             options: $options
@@ -56,16 +58,13 @@ trait WithAlerts
      * Dispatch toast notification
      */
     public function toast($message, $icon = 'success', $options = [])
-{
-    $this->dispatch('swal:toast', 
-        message: $message,
-        icon: $icon,
-        options: $options
-    );     
-  }
-
-  
-
+    {
+        $this->dispatch('swal:toast',
+            message: $message,
+            icon: $icon,
+            options: $options
+        );
+    }
 
     /**
      * Show success toast for common operations
@@ -95,7 +94,8 @@ trait WithAlerts
         $this->toast("{$entity} desactivado correctamente", 'warning');
     }
 
-    public function toastSuccess($text = 'Accion realizada con exito'){
+    public function toastSuccess($text = 'Accion realizada con exito')
+    {
         $this->toast("{$text}");
     }
 

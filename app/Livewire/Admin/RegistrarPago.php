@@ -9,6 +9,7 @@ use App\Models\Socio;
 use App\Models\Tarifa;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
@@ -21,7 +22,9 @@ class RegistrarPago extends Component
 
     public $socioSeleccionado = null;
 
-    // --- Actualización de Datos de Contacto (NUEVO) ---
+    public $ultimoPagoMes;
+
+    // --- Datos de Contacto ---
     public $nuevo_telefono;
 
     public $nuevo_email;
@@ -44,7 +47,6 @@ class RegistrarPago extends Component
 
     public $tarifa_unitaria = 0;
 
-    // Periodos
     public $usar_periodos = false;
 
     public $fecha_inicio;
@@ -53,15 +55,20 @@ class RegistrarPago extends Component
 
     public $listaMeses = [];
 
+    // Array asociativo: ['2024-01-01' => 'aprobado', '2024-02-01' => 'pendiente']
+    public $mesesPagados = [];
+
     public function mount()
     {
         $hoy = now()->startOfMonth()->format('Y-m-d');
         $this->fecha_inicio = $hoy;
         $this->fecha_fin = $hoy;
 
-        $inicio = now()->subYear()->startOfMonth();
-        for ($i = 0; $i < 36; $i++) {
+        // Generamos lista de meses: Desde el mes actual hasta 2 años a futuro
+        $inicio = now()->startOfMonth();
+        for ($i = 0; $i < 24; $i++) {
             $fecha = $inicio->copy()->addMonths($i);
+            // Clave estricta Y-m-d para coincidir con la base de datos
             $this->listaMeses[$fecha->format('Y-m-d')] = ucfirst($fecha->locale('es')->monthName).' '.$fecha->year;
         }
     }
@@ -75,9 +82,11 @@ class RegistrarPago extends Component
         }
 
         $this->resultados = Socio::with('tipoSocio', 'colegio')
-            ->where('nombre', 'like', "%{$this->search}%")
-            ->orWhere('rni', 'like', "%{$this->search}%")
-            ->orWhere('cedula', 'like', "%{$this->search}%")
+            ->where(function ($q) {
+                $q->where('nombre', 'like', "%{$this->search}%")
+                    ->orWhere('rni', 'like', "%{$this->search}%")
+                    ->orWhere('cedula', 'like', "%{$this->search}%");
+            })
             ->limit(5)
             ->get();
     }
@@ -87,49 +96,102 @@ class RegistrarPago extends Component
         $this->socioSeleccionado = Socio::with('tipoSocio', 'colegio')->find($id);
         $this->search = '';
         $this->resultados = [];
-        $this->resetFormularioPago();
 
-        // --- LÓGICA PARA DETECTAR DATOS FALTANTES ---
-        // Verificamos si faltan datos. Si el campo es null o vacío, pedimos actualizar.
+        $this->resetFormularioPago(false);
+
         $this->pedir_telefono = empty($this->socioSeleccionado->telefono);
         $this->pedir_email = empty($this->socioSeleccionado->email);
 
-        // Limpiamos los inputs temporales
-        $this->nuevo_telefono = '';
-        $this->nuevo_email = '';
+        $user = Auth::user();
+        if ($user->isUsuarioColegio()) {
+            $conceptoAporte = Concepto::where('nombre', 'Aporte Colegio')->first();
+            if ($conceptoAporte) {
+                $this->concepto_id = $conceptoAporte->id;
+                $this->updatedConceptoId();
+            }
+        }
+
+        if (! $this->concepto_id) {
+            $this->mesesPagados = [];
+            $this->ultimoPagoMes = 'Seleccione un concepto';
+        }
     }
 
-    public function cancelarSeleccion()
+    private function cargarHistorialSocio()
     {
-        $this->socioSeleccionado = null;
-        $this->resetFormularioPago();
+        if (! $this->socioSeleccionado || ! $this->concepto_id) {
+            $this->mesesPagados = [];
+            $this->ultimoPagoMes = 'Seleccione un concepto';
+
+            return;
+        }
+
+        $this->mesesPagados = [];
+
+        $pagos = Pago::where('id_socio', $this->socioSeleccionado->id)
+            ->where('id_concepto', $this->concepto_id) // <--- ESTA LINEA ARREGLA EL PROBLEMA
+            ->whereIn('estado', ['pendiente', 'aprobado'])
+            ->get();
+
+        foreach ($pagos as $pago) {
+            $inicio = Carbon::parse($pago->periodo_inicio)->startOfMonth()->startOfDay();
+            $fin = Carbon::parse($pago->periodo_fin)->startOfMonth()->startOfDay();
+
+            while ($inicio <= $fin) {
+                $clave = $inicio->format('Y-m-d');
+
+                if (! isset($this->mesesPagados[$clave]) || $this->mesesPagados[$clave] !== 'aprobado') {
+                    $this->mesesPagados[$clave] = $pago->estado;
+                }
+
+                $inicio->addMonth();
+            }
+        }
+
+        $ultimo = Pago::where('id_socio', $this->socioSeleccionado->id)
+            ->where('id_concepto', $this->concepto_id)
+            ->where('estado', 'aprobado')
+            ->orderBy('periodo_fin', 'desc')
+            ->first();
+
+        $this->ultimoPagoMes = $ultimo
+            ? ucfirst(Carbon::parse($ultimo->periodo_fin)->locale('es')->monthName).' '.Carbon::parse($ultimo->periodo_fin)->year
+            : 'Sin pagos registrados para este concepto';
     }
 
     public function updatedConceptoId()
     {
+        $this->resetValidation();
+
         if (! $this->socioSeleccionado || ! $this->concepto_id) {
             return;
         }
 
+        $this->cargarHistorialSocio();
+
         $concepto = Concepto::find($this->concepto_id);
         $this->usar_periodos = $concepto->es_periodico;
 
-        $destinoColegioId = null;
-        if (str_contains(strtolower($concepto->nombre), 'colegio')) {
-            $destinoColegioId = $this->socioSeleccionado->id_colegio;
+        $destinoColegioId = str_contains(strtolower($concepto->nombre), 'colegio')
+            ? $this->socioSeleccionado->id_colegio
+            : null;
+
+        $tarifa = Tarifa::buscarPrecio($this->concepto_id, $this->socioSeleccionado->id_tipo_socio, $destinoColegioId)->first();
+
+        $this->tarifa_unitaria = $tarifa ? $tarifa->monto : 0;
+
+        if (! $tarifa) {
+            $this->addError('concepto_id', 'No existe una tarifa configurada para este socio y concepto.');
         }
 
-        $tarifa = Tarifa::buscarPrecio(
-            $this->concepto_id,
-            $this->socioSeleccionado->id_tipo_socio,
-            $destinoColegioId
-        )->first();
+        if ($this->usar_periodos) {
+            $sugerencia = now()->startOfMonth();
 
-        if ($tarifa) {
-            $this->tarifa_unitaria = $tarifa->monto;
-        } else {
-            $this->tarifa_unitaria = 0;
-            $this->addError('concepto_id', 'No existe una tarifa configurada.');
+            while (array_key_exists($sugerencia->format('Y-m-d'), $this->mesesPagados)) {
+                $sugerencia->addMonth();
+            }
+            $this->fecha_inicio = $sugerencia->format('Y-m-d');
+            $this->fecha_fin = $sugerencia->format('Y-m-d');
         }
 
         $this->calcularTotal();
@@ -137,12 +199,14 @@ class RegistrarPago extends Component
 
     public function updatedFechaInicio()
     {
+        $this->resetValidation();
         $this->validarFechas();
         $this->calcularTotal();
     }
 
     public function updatedFechaFin()
     {
+        $this->resetValidation();
         $this->validarFechas();
         $this->calcularTotal();
     }
@@ -168,97 +232,136 @@ class RegistrarPago extends Component
 
     public function guardar()
     {
-        // 1. REGLAS DE VALIDACIÓN DINÁMICAS
+        $this->resetValidation();
+
         $rules = [
             'socioSeleccionado' => 'required',
             'concepto_id' => 'required|exists:conceptos,id',
             'metodo_pago_id' => 'required|exists:metodos_pago,id',
             'monto_total' => 'required|numeric|min:0.1',
+            'nro_transaccion' => 'nullable|string|unique:pagos,nro_transaccion',
         ];
 
-        // Si falta teléfono, lo hacemos obligatorio ahora
+        $messages = [
+            'concepto_id.required' => 'Debe seleccionar un concepto de pago.',
+            'metodo_pago_id.required' => 'Seleccione cómo realizó el pago.',
+            'monto_total.min' => 'El monto no puede ser cero.',
+            'nro_transaccion.unique' => 'Este número de comprobante ya está registrado.',
+            'nuevo_telefono.required' => 'El teléfono es obligatorio para este socio.',
+            'nuevo_email.email' => 'El formato del correo es inválido.',
+        ];
+
         if ($this->pedir_telefono) {
-            $rules['nuevo_telefono'] = 'required|numeric|digits_between:8,15';
+            $rules['nuevo_telefono'] = 'required|numeric|digits_between:7,15';
         }
-
-        // Si falta email, es opcional pero debe ser válido
         if ($this->pedir_email) {
-            $rules['nuevo_email'] = 'nullable|email|max:100';
+            $rules['nuevo_email'] = 'nullable|email';
         }
 
-        $this->validate($rules, [
-            'nuevo_telefono.required' => 'El número de celular es obligatorio para registrar el pago.',
-            'nuevo_email.email' => 'El formato del correo no es válido.',
-        ]);
+        $this->validate($rules, $messages);
 
-        $concepto = Concepto::find($this->concepto_id);
-        $user = Auth::user();
+        // Validación de meses ocupados (Ahora funciona correctamente con el filtro de concepto)
+        if ($this->usar_periodos) {
+            $mesesAIntentar = [];
+            $iterador = Carbon::parse($this->fecha_inicio)->startOfMonth();
+            $finIntento = Carbon::parse($this->fecha_fin)->startOfMonth();
 
-        // Restricción Rol Cajero Colegio
-        if ($user->isUsuarioColegio() && $concepto->nombre !== 'Aporte Colegio') {
-            $this->addError('concepto_id', 'No tienes permisos para cobrar este concepto.');
-
-            return;
-        }
-
-        // 2. ACTUALIZAR DATOS DEL SOCIO (Si aplica)
-        if ($this->pedir_telefono || ($this->pedir_email && $this->nuevo_email)) {
-            $datosActualizar = [];
-            if ($this->pedir_telefono) {
-                $datosActualizar['telefono'] = $this->nuevo_telefono;
-            }
-            if ($this->pedir_email && $this->nuevo_email) {
-                $datosActualizar['email'] = $this->nuevo_email;
+            while ($iterador <= $finIntento) {
+                $mesesAIntentar[] = $iterador->format('Y-m-d');
+                $iterador->addMonth();
             }
 
-            $this->socioSeleccionado->update($datosActualizar);
+            // Usamos array_intersect con las KEYS del array asociativo
+            $conflicto = array_intersect($mesesAIntentar, array_keys($this->mesesPagados));
+
+            if (! empty($conflicto)) {
+                $primerMes = Carbon::parse(reset($conflicto));
+                $nombreMes = ucfirst($primerMes->locale('es')->monthName).' '.$primerMes->year;
+
+                $this->addError('fecha_inicio', "El mes de {$nombreMes} ya está pagado (o pendiente) para este concepto. Verifique el rango.");
+
+                return;
+            }
         }
 
-        // 3. Validar Gates
-        $idColegioDestino = str_contains(strtolower($concepto->nombre), 'colegio')
+        $conceptoObj = Concepto::find($this->concepto_id);
+        $idColegioDestino = str_contains(strtolower($conceptoObj->nombre), 'colegio')
             ? $this->socioSeleccionado->id_colegio
             : null;
 
         if (! Gate::allows('registrar-pago', $idColegioDestino)) {
-            $this->addError('permiso', 'NO TIENES AUTORIZACIÓN para cobrar en esta entidad.');
+            $this->addError('permiso', 'No tienes autorización para registrar pagos en esta entidad.');
 
             return;
         }
 
-        // 4. Crear Pago
-        Pago::create([
-            'id_socio' => $this->socioSeleccionado->id,
-            'id_concepto' => $this->concepto_id,
-            'id_usuario' => Auth::id(),
-            'id_metodo_pago' => $this->metodo_pago_id,
-            'monto_pagado' => $this->monto_total,
-            'nro_transaccion' => $this->nro_transaccion,
-            'fecha_pago' => now(),
-            'periodo_inicio' => $this->usar_periodos ? $this->fecha_inicio : null,
-            'periodo_fin' => $this->usar_periodos ? Carbon::parse($this->fecha_fin)->endOfMonth()->format('Y-m-d') : null,
-            'estado' => 'aprobado',
-            'observacion' => $this->observacion,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        session()->flash('success', 'Pago registrado y datos de socio actualizados correctamente.');
-        $this->cancelarSeleccion();
+            if ($this->pedir_telefono || ($this->pedir_email && $this->nuevo_email)) {
+                $this->socioSeleccionado->update(array_filter([
+                    'telefono' => $this->nuevo_telefono ?: $this->socioSeleccionado->telefono,
+                    'email' => $this->nuevo_email ?: $this->socioSeleccionado->email,
+                ]));
+            }
+
+            Pago::create([
+                'id_socio' => $this->socioSeleccionado->id,
+                'id_concepto' => $this->concepto_id,
+                'id_usuario' => Auth::id(),
+                'id_metodo_pago' => $this->metodo_pago_id,
+                'monto_pagado' => $this->monto_total,
+                'nro_transaccion' => $this->nro_transaccion,
+                'fecha_pago' => now(),
+                'periodo_inicio' => $this->usar_periodos ? $this->fecha_inicio : null,
+                'periodo_fin' => $this->usar_periodos ? Carbon::parse($this->fecha_fin)->endOfMonth()->format('Y-m-d') : null,
+                'estado' => 'aprobado', // Pago en ventanilla es aprobado directo
+                'observacion' => $this->observacion,
+            ]);
+
+            DB::commit();
+            session()->flash('success', 'Pago registrado exitosamente.');
+            $this->cancelarSeleccion();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->addError('monto_total', 'Error crítico al procesar: '.$e->getMessage());
+        }
     }
 
-    private function resetFormularioPago()
+    private function resetFormularioPago($limpiarSocio = true)
     {
+        if ($limpiarSocio) {
+            $this->socioSeleccionado = null;
+            // Si limpiamos el socio, limpiamos el historial
+            $this->mesesPagados = [];
+            $this->ultimoPagoMes = null;
+        }
+
         $this->reset([
             'concepto_id', 'metodo_pago_id', 'nro_transaccion', 'observacion',
             'monto_total', 'tarifa_unitaria', 'nuevo_telefono', 'nuevo_email',
-            'pedir_telefono', 'pedir_email',
+            'pedir_telefono', 'pedir_email', 'usar_periodos',
         ]);
-        $this->mount();
+
+        // No llamamos a mount() completo para no resetear fechas si no es necesario,
+        // pero reseteamos validaciones
+        $this->resetValidation();
+
+        $hoy = now()->startOfMonth()->format('Y-m-d');
+        $this->fecha_inicio = $hoy;
+        $this->fecha_fin = $hoy;
+    }
+
+    public function cancelarSeleccion()
+    {
+        $this->resetFormularioPago(true);
     }
 
     public function render()
     {
         $user = Auth::user();
         $queryConceptos = Concepto::query();
-
         if ($user->isUsuarioColegio()) {
             $queryConceptos->where('nombre', 'Aporte Colegio');
         }

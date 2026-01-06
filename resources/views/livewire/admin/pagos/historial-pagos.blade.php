@@ -1,13 +1,10 @@
 <div class="p-6 font-sans">
-
-    {{-- ENCABEZADO --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Historial de Pagos</h1>
             <p class="text-sm text-slate-500">Auditoría completa de transacciones y aportes.</p>
         </div>
 
-        {{-- BOTÓN EXPORTAR (Conectado) --}}
         <button wire:click="exportarPdf" wire:loading.attr="disabled"
             class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 disabled:opacity-50">
             <x-ri-file-pdf-2-line class="w-4 h-4 text-red-600" />
@@ -17,11 +14,9 @@
         </button>
     </div>
 
-    {{-- BARRA DE FILTROS AVANZADA --}}
     <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mb-6">
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            {{-- Buscador --}}
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Buscador Global</label>
                 <div class="relative">
@@ -32,7 +27,6 @@
                 </div>
             </div>
 
-            {{-- Rango de Fechas --}}
             <div class="md:col-span-2 flex gap-2">
                 <div class="flex-1">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Desde</label>
@@ -48,8 +42,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-100">
-
-            {{-- Filtro: Colegio --}}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Colegio</label>
                 <select wire:model.live="colegio_id"
@@ -62,7 +54,6 @@
                 </select>
             </div>
 
-            {{-- Filtro: Concepto --}}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Concepto</label>
                 <select wire:model.live="concepto_id"
@@ -74,7 +65,6 @@
                 </select>
             </div>
 
-            {{-- Filtro: Tipo Socio --}}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tipo Socio</label>
                 <select wire:model.live="tipo_socio_id"
@@ -86,7 +76,6 @@
                 </select>
             </div>
 
-            {{-- Filtro: Estado --}}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Estado Pago</label>
                 <select wire:model.live="estado"
@@ -98,7 +87,6 @@
                 </select>
             </div>
 
-            {{-- Botón Limpiar --}}
             <div class="flex items-end">
                 <button wire:click="limpiarFiltros"
                     class="w-full py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition flex justify-center items-center gap-1">
@@ -108,10 +96,7 @@
         </div>
     </div>
 
-    {{-- TABLA DE RESULTADOS (Se mantiene igual que antes) --}}
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        {{-- ... (Tu código de tabla existente: thead, tbody, foreach...) ... --}}
-        {{-- Solo asegúrate de que use $pagos como antes --}}
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">

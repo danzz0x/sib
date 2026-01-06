@@ -14,19 +14,17 @@ class ManageTarifas extends Component
 {
     use WithPagination;
 
-    // UI
     public $search = '';
 
     public $openModal = false;
 
     public $tarifaId = null;
 
-    // Campos
     public $id_concepto;
 
     public $id_tipo_socio;
 
-    public $id_colegio; // Nullable
+    public $id_colegio;
 
     public $monto;
 
@@ -43,8 +41,6 @@ class ManageTarifas extends Component
             'id_colegio' => 'nullable|exists:colegios,id',
             'monto' => 'required|numeric|min:0',
 
-            // Validación de Unicidad Compuesta:
-            // No permite repetir (Concepto + Tipo + Colegio)
             'id_concepto' => [
                 'required',
                 Rule::unique('tarifas')->where(function ($query) {
@@ -56,7 +52,19 @@ class ManageTarifas extends Component
     }
 
     protected $messages = [
-        'id_concepto.unique' => 'Ya existe una tarifa configurada para esta combinación de Concepto, Socio y Colegio.',
+        'id_concepto.required' => 'Debe seleccionar un concepto de pago.',
+        'id_concepto.exists' => 'El concepto seleccionado no es válido.',
+
+        'id_concepto.unique' => 'Ya existe una tarifa configurada idéntica (mismo Concepto, Tipo de Socio y Colegio).',
+
+        'id_tipo_socio.required' => 'Seleccione a qué tipo de socio aplica esta tarifa.',
+        'id_tipo_socio.exists' => 'El tipo de socio seleccionado no es válido.',
+
+        'id_colegio.exists' => 'El colegio seleccionado no es válido.',
+
+        'monto.required' => 'Es obligatorio ingresar el precio o monto.',
+        'monto.numeric' => 'El monto debe ser un valor numérico.',
+        'monto.min' => 'El monto no puede ser negativo.',
     ];
 
     public function render()
@@ -101,7 +109,6 @@ class ManageTarifas extends Component
 
     public function store()
     {
-        // Convertir string vacía a null para id_colegio (importante para la DB)
         if ($this->id_colegio === '') {
             $this->id_colegio = null;
         }

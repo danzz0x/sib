@@ -12,9 +12,8 @@ use Livewire\WithPagination;
 class ManageCuentas extends Component
 {
     use WithFileUploads;
-    use WithPagination; // Importante para subir el QR
+    use WithPagination;
 
-    // UI
     public $search = '';
 
     public $openModal = false;
@@ -22,7 +21,7 @@ class ManageCuentas extends Component
     public $cuentaId = null;
 
     // Campos
-    public $id_colegio = ''; // Empty string = SIB Nacional (Null en BD)
+    public $id_colegio = '';
 
     public $banco;
 
@@ -30,9 +29,9 @@ class ManageCuentas extends Component
 
     public $titular;
 
-    public $qr_imagen; // Archivo temporal (Upload)
+    public $qr_imagen;
 
-    public $qr_path_actual; // Para mostrar la imagen existente al editar
+    public $qr_path_actual;
 
     public $activo = true;
 
@@ -48,10 +47,28 @@ class ManageCuentas extends Component
             'banco' => 'required|string|max:50',
             'nro_cuenta' => 'required|string|max:50',
             'titular' => 'required|string|max:100',
-            'qr_imagen' => 'nullable|image|max:2048', // Máx 2MB
+            'qr_imagen' => 'nullable|image|max:2048',
             'activo' => 'boolean',
         ];
     }
+
+    protected $messages = [
+        'id_colegio.exists' => 'El colegio seleccionado no es válido.',
+
+        'banco.required' => 'El nombre del banco es obligatorio (Ej: Banco Unión).',
+        'banco.max' => 'El nombre del banco es demasiado largo (máximo 50 caracteres).',
+
+        'nro_cuenta.required' => 'El número de cuenta es obligatorio.',
+        'nro_cuenta.max' => 'El número de cuenta es demasiado largo.',
+
+        'titular.required' => 'Debe ingresar el nombre del titular de la cuenta.',
+        'titular.max' => 'El nombre del titular excede el límite de caracteres.',
+
+        'qr_imagen.image' => 'El archivo subido debe ser una imagen (JPG, PNG).',
+        'qr_imagen.max' => 'La imagen del QR es muy pesada (Máximo 2MB).',
+
+        'activo.boolean' => 'El valor del estado activo/inactivo no es válido.',
+    ];
 
     public function render()
     {
@@ -61,7 +78,7 @@ class ManageCuentas extends Component
                     ->orWhere('titular', 'like', '%'.$this->search.'%')
                     ->orWhere('nro_cuenta', 'like', '%'.$this->search.'%');
             })
-            ->orderBy('id_colegio', 'asc') // Ordenar: Primero Nacionales, luego Colegios
+            ->orderBy('id_colegio', 'asc')
             ->orderBy('activo', 'desc')
             ->paginate(10);
 
@@ -97,18 +114,16 @@ class ManageCuentas extends Component
     {
         $this->validate();
 
-        // Manejo de Imagen QR
-        $qrPath = $this->qr_path_actual; // Mantener el anterior por defecto
+        $qrPath = $this->qr_path_actual;
 
         if ($this->qr_imagen) {
-            // Si hay imagen nueva, borrar la anterior (si existe) y subir nueva
+
             if ($this->qr_path_actual) {
                 Storage::disk('public')->delete($this->qr_path_actual);
             }
             $qrPath = $this->qr_imagen->store('qrs_bancos', 'public');
         }
 
-        // Lógica para id_colegio: Si es string vacío, guardar como NULL
         $colegioId = $this->id_colegio === '' ? null : $this->id_colegio;
 
         CuentaBancaria::updateOrCreate(

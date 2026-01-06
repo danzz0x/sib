@@ -29,7 +29,7 @@ class Colegios extends Component
             'required',
             'string',
             'max:255',
-            'regex:/^.+\s\([A-Z0-9\-]+\)$/i',
+            'regex:/^.+\s\([A-Z0-9\-ÁÉÍÓÚÑ]+\)$/iu',
         ],
         'descripcion' => 'nullable|string|max:500',
         'nuevoLogo' => 'nullable|image|max:2048',

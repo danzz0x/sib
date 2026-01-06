@@ -32,8 +32,12 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900 text-sm">{{ $pago->socio->nombre }}</h3>
-                            <p class="text-xs text-slate-500">{{ $pago->socio->colegio->sigla }} •
+                            <p class="text-xs text-slate-500">{{ $pago->socio->colegio->slug }} •
                                 {{ $pago->socio->rni }}</p>
+                            <span class="text-xs text-slate-500 bg-slate-100 px-1 rounded">
+                                {{ \Carbon\Carbon::parse($pago->periodo_inicio)->format('M/Y') }} -
+                                {{ \Carbon\Carbon::parse($pago->periodo_fin)->format('M/Y') }}
+                            </span>
                         </div>
                     </div>
 

@@ -11,8 +11,10 @@ use App\Livewire\Colegios;
 use App\Livewire\Colegios\ShowColegio;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+route::get('/', function () {
+
     return view('auth.login');
+
 });
 
 Route::middleware([
@@ -20,14 +22,23 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('dashboard', Colegios::class)->name('dashboard')->middleware('can:manage-everything');
-    Route::get('admin/caja', RegistrarPago::class)->name('admin.pagos');
-    Route::get('admin/users', ManageUsers::class)->name('admin.users')->middleware('can:manage-everything');
-    Route::get('admin/tarifas', ManageTarifas::class)->name('admin.tarifas');
-    Route::get('admin/socios', ManageSocios::class)->name('admin.socios');
-    Route::get('admin/hitorial-pagos', HistorialPagos::class)->name('admin.historial');
-    Route::get('admin/cuentas', ManageCuentas::class)->name('admin.cuentas');
-    Route::get('admin/validar', ValidarPagos::class)->name('admin.validar');
+
+    Route::get('dashboard', colegios::class)->name('dashboard');
+
+    // GRUPO 1: Solo Administradores (Configuración Global)
+    Route::middleware(['can:manage-settings'])->group(function () {
+        Route::get('admin/tarifas', managetarifas::class)->name('admin.tarifas');
+        Route::get('admin/cuentas', managecuentas::class)->name('admin.cuentas');
+        Route::get('admin/users', manageusers::class)->name('admin.users')->middleware('can:manage-everything');
+    });
+
+    // GRUPO 2: Operaciones (Admin, Cajero Central y Personal de Colegio autorizado)
+    Route::middleware(['can:access-operations'])->group(function () {
+        Route::get('admin/caja', registrarpago::class)->name('admin.pagos');
+        Route::get('admin/socios', managesocios::class)->name('admin.socios');
+        Route::get('admin/hitorial-pagos', historialpagos::class)->name('admin.historial');
+        Route::get('admin/validar', validarpagos::class)->name('admin.validar');
+    });
 });
 
 Route::get('colegios/{slug}', ShowColegio::class)->name('colegios.show');

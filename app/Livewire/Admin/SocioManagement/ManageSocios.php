@@ -142,6 +142,39 @@ class ManageSocios extends Component
         ];
     }
 
+    protected $messages = [
+        'id_tipo_socio.required' => 'Debe seleccionar el tipo de socio (Ej: Activo, Emérito).',
+        'id_tipo_socio.exists' => 'El tipo de socio seleccionado no es válido.',
+
+        'id_colegio.required' => 'Es obligatorio asignar un Colegio Profesional.',
+        'id_colegio.exists' => 'El colegio seleccionado no existe en el sistema.',
+
+        'nombre.required' => 'El nombre completo del socio es obligatorio.',
+        'nombre.max' => 'El nombre es demasiado largo (máximo 150 caracteres).',
+
+        'cedula.required' => 'La Cédula de Identidad (CI) es obligatoria.',
+        'cedula.max' => 'La Cédula no puede tener más de 20 caracteres.',
+        'cedula.unique' => 'Esta Cédula ya está registrada en el sistema con otro socio.',
+
+        'rni.max' => 'El RNI no puede tener más de 20 caracteres.',
+        'rni.unique' => 'Este número de RNI ya pertenece a otro socio.',
+
+        'especialidad.required' => 'Debe seleccionar una especialidad.',
+        'especialidad.enum' => 'La especialidad seleccionada no es válida.',
+
+        'email.email' => 'El formato del correo electrónico no es válido.',
+        'email.max' => 'El correo es demasiado largo (máximo 100 caracteres).',
+        'email.unique' => 'Este correo electrónico ya está siendo usado por otro socio.',
+
+        'telefono.max' => 'El número de teléfono es demasiado largo.',
+
+        'fecha_registro.required' => 'La fecha de registro/ingreso es obligatoria.',
+        'fecha_registro.date' => 'Ingrese una fecha válida.',
+
+        'estado.required' => 'El estado del socio es obligatorio.',
+        'estado.in' => 'El estado debe ser Activo o Inactivo.',
+    ];
+
     public function create()
     {
         $this->resetFields();

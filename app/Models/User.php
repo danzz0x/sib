@@ -105,7 +105,7 @@ class User extends Authenticatable
         return $this->isSuperAdmin() || $this->isCajeroGeneral();
     }
 
-    // ¿Es usuario restringido a colegios específicos?
+    // ¿Es usuario restringido a colegios específicose
     public function isUsuarioColegio(): bool
     {
         return $this->role === self::ROLE_COLEGIO;

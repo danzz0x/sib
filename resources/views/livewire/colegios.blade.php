@@ -5,11 +5,13 @@
 })" class="p-6">
     <header class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Gestión de Colegios</h1>
+        @can('manage-everything')
         <button @click="openModal = true" aria-label="Crear nuevo colegio"
             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm transition-all duration-200 hover:shadow-md">
             <x-ri-add-line class="w-4 h-4 inline-block" />
             Nuevo Colegio
         </button>
+        @endcan
     </header>
 
     <article class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
@@ -18,6 +20,7 @@
                 class="relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-6 border border-gray-100 flex flex-col h-full">
 
                 <div class="absolute top-3 right-3">
+                    @can('manage-post', $colegio)
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"
                             class="p-1 rounded-full hover:bg-gray-100 flex items-center justify-center"
@@ -32,13 +35,16 @@
                                 class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Editar
                             </button>
+                            @can('manage-everything')
                             <button
                                 onclick="window.confirmDelete({{ $colegio->id }}, (id) => @this.call('delete', id)); this.parentElement.previousElementSibling.click()"
                                 class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                                 Eliminar
                             </button>
+                            @endcan
                         </div>
                     </div>
+                    @endcan
                 </div>
 
                 <div class="flex items-center space-x-4 mb-4">

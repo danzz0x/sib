@@ -50,14 +50,39 @@ class AppServiceProvider extends ServiceProvider
 
             return false;
         });
+        Gate::define('manage-settings', function (User $user) {
+            return $user->isSuperAdmin() || $user->isCajeroGeneral();
+        });
+        Gate::define('access-operations', function (User $user) {
+            // Si es Admin o Cajero Central, pasa
+            if ($user->tieneAccesoGlobalPagos()) {
+                return true;
+            }
 
-        Gate::define('manage-post', function (User $user, Colegio $colegio) {
+            // Si es usuario de colegio, verificamos si tiene roles operativos en CUALQUIER colegio
+            if ($user->isUsuarioColegio()) {
+                return $user->colegios()
+                    ->wherePivotIn('tipo_usuario_colegio', [
+                        User::PIVOT_ROL_DIRECTOR,
+                        User::PIVOT_ROL_TESORERO,
+                    ])->exists();
+            }
+
+            return false;
+        });
+
+        Gate::define('manage-post', function (User $user, ?Colegio $colegio = null) {
 
             // 1. Admin Global pasa siempre
             if ($user->isSuperAdmin()) {
                 return true;
             }
 
+            if (! $colegio) {
+                // Define aquí qué pasa si no hay colegio.
+                // Por ejemplo, si no es superAdmin y no hay colegio, denegar:
+                return false;
+            }
             // 2. Buscamos el colegio en la memoria del usuario
             $colegioPivot = $user->colegios->find($colegio->id);
 
