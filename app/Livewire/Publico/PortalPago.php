@@ -115,6 +115,7 @@ class PortalPago extends Component
         $this->mesesPagados = [];
 
         $pagos = Pago::where('id_socio', $this->socio->id)
+            ->where('id_concepto', $this->concepto->id) // <--- AÑADE ESTA LÍNEA
             ->whereIn('estado', ['pendiente', 'aprobado'])
             ->get();
 
@@ -130,13 +131,14 @@ class PortalPago extends Component
 
         // 3. INFO VISUAL
         $ultimo = Pago::where('id_socio', $this->socio->id)
+            ->where('id_concepto', $this->concepto->id) // <--- AÑADE ESTA LÍNEA
             ->where('estado', 'aprobado')
             ->orderBy('periodo_fin', 'desc')
             ->first();
 
         $this->ultimoPagoMes = $ultimo
-            ? ucfirst(Carbon::parse($ultimo->periodo_fin)->locale('es')->monthName).' '.Carbon::parse($ultimo->periodo_fin)->year
-            : 'Sin pagos registrados';
+    ? ucfirst(Carbon::parse($ultimo->periodo_fin)->locale('es')->monthName).' '.Carbon::parse($ultimo->periodo_fin)->year
+    : 'Sin pagos registrados para este concepto';
 
         // 4. PRESELECCIÓN INTELIGENTE
         $sugerencia = now()->startOfMonth();

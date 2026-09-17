@@ -22,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        if (str_contains(config('app.url'), 'https://')) {
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+    	}
+
         Gate::define('manage-everything', function (User $user) {
             return $user->role === User::ROLE_ADMIN;
         });
